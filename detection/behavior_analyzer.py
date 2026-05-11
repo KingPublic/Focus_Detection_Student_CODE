@@ -72,6 +72,28 @@ BEHAVIOR_RULES = [
         "label": "Eyes Closed",
         "check_fn": lambda hp, et: et.eye_closed,
     },
+    {
+        "id":    "EYE_LOOK_LEFT",
+        "label": "Eye Gaze Left",
+        # Deteksi melirik ke kiri menggunakan posisi iris relatif terhadap
+        # sudut mata (gaze_x < threshold negatif).
+        # Rule ini aktif HANYA jika kepala masih lurus (|yaw| < 15 deg)
+        # agar tidak overlap dengan LOOKING_LEFT (head pose).
+        "check_fn": lambda hp, et: (
+            et.gaze_x < cfg.GAZE_LEFT_THRESHOLD
+            and (not hp.success or abs(hp.yaw) < 15.0)
+            and not et.eye_closed
+        ),
+    },
+    {
+        "id":    "EYE_LOOK_RIGHT",
+        "label": "Eye Gaze Right",
+        "check_fn": lambda hp, et: (
+            et.gaze_x > cfg.GAZE_RIGHT_THRESHOLD
+            and (not hp.success or abs(hp.yaw) < 15.0)
+            and not et.eye_closed
+        ),
+    },
 ]
 
 
@@ -151,6 +173,8 @@ class BehaviorAnalyzer:
             "LOOKING_UP":     cfg.DURATION_WARN_LOOK_AWAY,
             "FACE_ABSENT":    cfg.DURATION_WARN_FACE_ABSENT,
             "EYES_CLOSED":    cfg.DURATION_WARN_EYES_CLOSED,
+            "EYE_LOOK_LEFT":  cfg.DURATION_WARN_GAZE,
+            "EYE_LOOK_RIGHT": cfg.DURATION_WARN_GAZE,
         }
         CRIT_THRESH = {
             "LOOKING_LEFT":   cfg.DURATION_CRIT_LOOK_AWAY,
@@ -159,6 +183,8 @@ class BehaviorAnalyzer:
             "LOOKING_UP":     cfg.DURATION_CRIT_LOOK_AWAY,
             "FACE_ABSENT":    cfg.DURATION_CRIT_FACE_ABSENT,
             "EYES_CLOSED":    cfg.DURATION_CRIT_EYES_CLOSED,
+            "EYE_LOOK_LEFT":  cfg.DURATION_CRIT_GAZE,
+            "EYE_LOOK_RIGHT": cfg.DURATION_CRIT_GAZE,
         }
 
         severity = "OK"

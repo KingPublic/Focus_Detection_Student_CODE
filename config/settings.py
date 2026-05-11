@@ -66,6 +66,17 @@ COLOR_WHITE     = (255, 255, 255)
 COLOR_GRAY      = (160, 160, 160)
 COLOR_SIDEBAR   = (25,   25,  35)
 
+# --- GAZE (IRIS) THRESHOLDS ---
+# gaze_x: -1.0 = iris penuh ke kiri, +1.0 = iris penuh ke kanan
+# Nilai ~0.0 = iris di tengah (lurus ke depan)
+# Threshold 0.35 dipilih agar tidak terlalu sensitif terhadap noise iris
+GAZE_LEFT_THRESHOLD  = -0.35   # gaze_x < nilai ini = melirik ke kiri
+GAZE_RIGHT_THRESHOLD =  0.35   # gaze_x > nilai ini = melirik ke kanan
+
+# Durasi threshold untuk eye gaze (lebih pendek dari head pose)
+DURATION_WARN_GAZE   = 2.5    # detik sebelum WARNING
+DURATION_CRIT_GAZE   = 5.0    # detik sebelum CRITICAL
+
 # --- BEHAVIOR LABELS ---
 BEHAVIOR_LABELS = {
     "LOOKING_LEFT":   "Looking Left",
@@ -74,4 +85,6 @@ BEHAVIOR_LABELS = {
     "LOOKING_UP":     "Looking Up",
     "FACE_ABSENT":    "Face Absent",
     "EYES_CLOSED":    "Eyes Closed",
+    "EYE_LOOK_LEFT":  "Eye Gaze Left",
+    "EYE_LOOK_RIGHT": "Eye Gaze Right",
 }
