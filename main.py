@@ -61,6 +61,7 @@ from alert.audio_alert         import AudioAlert
 from utils.fps_counter         import FPSCounter
 from utils.temporal_tracker    import TemporalTracker
 from utils.score_calculator    import ScoreCalculator
+from utils.session_logger       import SessionLogger
 
 
 def parse_args():
@@ -129,6 +130,7 @@ def main():
     fps_counter    = FPSCounter(window_size=30)
     temporal_track = TemporalTracker()
     score_calc     = ScoreCalculator()
+    session_log    = SessionLogger()
 
     print("\n[System] All modules initialized. Starting main loop...\n")
 
@@ -203,6 +205,9 @@ def main():
         # ============================================================== #
         severity = behavior_anal.compute_severity(active_behaviors, durations)
 
+        # Update session analytics
+        session_log.update(severity)
+
         # ============================================================== #
         #  STEP 7: Score Update
         # ============================================================== #
@@ -231,6 +236,7 @@ def main():
             suspicious_score = suspicious_score,
             fps              = fps_counter.fps,
             warning_messages = warning_messages,
+            session_stats    = session_log.get_stats(),
         )
 
         # ============================================================== #
@@ -260,6 +266,7 @@ def main():
         elif key == ord('r'):                   # R → Reset scores
             score_calc.reset()
             temporal_track.reset()
+            session_log.reset()
             print("[System] Scores and timers reset.")
         elif key == ord('s'):                   # S → Screenshot
             ts = time.strftime("%Y%m%d_%H%M%S")

@@ -129,14 +129,23 @@ class HeadPoseEstimator:
         # Ekstrak sudut Euler dari rotation matrix (ZYX convention)
         pitch, yaw, roll = self._rot_matrix_to_euler(rot_mat)
 
-        # Koreksi arah sumbu:
-        #   solvePnP menggunakan koordinat kamera (Y ke bawah, Z ke dalam).
-        #   Negasi pitch & yaw agar sesuai konvensi intuitif:
-        #     pitch > 0 = menunduk ke BAWAH  (bukan ke atas)
-        #     yaw   > 0 = kepala ke KANAN    (bukan ke kiri)
-        #   Roll tidak dibalik karena tidak digunakan untuk rule detection.
+        # Koreksi arah sumbu (konvensi intuitif: tunduk=+, kanan=+)
         pitch = -pitch
         yaw   = -yaw
+
+        # Normalisasi "flipped solution" solvePnP
+        # Saat wajah menghadap kamera, solvePnP kadang memilih solusi
+        # "kepala terbalik" sehingga pitch bisa bernilai ~-175 atau +175.
+        # Konversi ke representasi ekuivalen dalam range [-90, +90].
+        # Contoh: pitch=-175 -> -(180-175)*(-1) = -5 deg (benar: hampir lurus)
+        if pitch > 90.0:
+            pitch =  180.0 - pitch
+            yaw   = -yaw
+            roll  =  roll - 180.0 if roll > 0 else roll + 180.0
+        elif pitch < -90.0:
+            pitch = -180.0 - pitch
+            yaw   = -yaw
+            roll  =  roll - 180.0 if roll > 0 else roll + 180.0
 
         return HeadPoseResult(pitch=pitch, yaw=yaw, roll=roll,
                               rvec=rvec, tvec=tvec, success=True)

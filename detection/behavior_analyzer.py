@@ -40,15 +40,17 @@ BEHAVIOR_RULES = [
     {
         "id":    "LOOKING_LEFT",
         "label": "Looking Left",
+        # Karena frame di-flip horizontal (cv2.flip), yaw positif = kepala
+        # pengguna menoleh ke KIRI (kiri dari sudut pandang pengguna sendiri)
         "check_fn": lambda hp, et: (
-            hp.success and hp.yaw < cfg.YAW_THRESHOLD_LEFT
+            hp.success and hp.yaw > cfg.YAW_THRESHOLD_RIGHT
         ),
     },
     {
         "id":    "LOOKING_RIGHT",
         "label": "Looking Right",
         "check_fn": lambda hp, et: (
-            hp.success and hp.yaw > cfg.YAW_THRESHOLD_RIGHT
+            hp.success and hp.yaw < cfg.YAW_THRESHOLD_LEFT
         ),
     },
     {
@@ -194,8 +196,8 @@ class BehaviorAnalyzer:
             msgs.append(f"{lbl}: {dur:.1f}s")
 
         if severity == "CRITICAL":
-            msgs.insert(0, "⚠ SUSPICIOUS BEHAVIOR DETECTED")
+            msgs.insert(0, "!! SUSPICIOUS BEHAVIOR DETECTED")
         else:
-            msgs.insert(0, "⚠ ATTENTION REQUIRED")
+            msgs.insert(0, "!! ATTENTION REQUIRED")
 
         return msgs
